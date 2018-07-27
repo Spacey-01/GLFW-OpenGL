@@ -1,57 +1,37 @@
-#include <iostream>
-
-//GLEW
-#define GLEW_STATIC
-#include <GL/glew.h>
-
-//GLFW3
 #include <GLFW/glfw3.h>
 
-const GLint WIDTH = 800, HEIGHT = 600;
-
-int main()
+int main(void)
 {
-    glfwInit();
+    GLFWwindow* window;
     
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); //need for mac
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    /* Initialize the library */
+    if (!glfwInit())
+        return -1;
     
-    GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Learn OpenGL", nullptr, nullptr);
-    
-    int screenWidth, screenHeight; //need for mac with retina display
-    glfwGetFramebufferSize(window, &screenWidth, &screenHeight); //need for mac with retina display
-    
-    if (nullptr == window)
+    /* Create a windowed mode window and its OpenGL context */
+    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    if (!window)
     {
-        std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
     }
     
+    /* Make the window's context current */
     glfwMakeContextCurrent(window);
-    glewExperimental = GL_TRUE;
     
-    if(GLEW_OK != glewInit())
+    /* Loop until the user closes the window */
+    while (!glfwWindowShouldClose(window))
     {
-        std::cout <<"Failed to initialise GLEW" << std::endl;
-        return -1;
-    }
-    
-    glViewport(0, 0, screenWidth, screenHeight);
-    
-    while(!glfwWindowShouldClose(window))
-    {
-        glfwPollEvents();
-        
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
         
+        /* Swap front and back buffers */
         glfwSwapBuffers(window);
-    
+        
+        /* Poll for and process events */
+        glfwPollEvents();
     }
     
     glfwTerminate();
+    return 0;
 }
