@@ -7,20 +7,12 @@
 //GLFW3
 #include <GLFW/glfw3.h>
 
-const GLint WIDTH = 800, HEIGHT = 600;
-const GLchar *vertexShaderSource = "#version 330 core\n"
-"layout ( location = 0 ) in vec3 position;\n"
-"void main()\n"
-"{\n"
-"gl_Position = vec4(position.x, position.y, position.z, 1.0 );\n"
-"}";
+#include "Shader.h"
 
-const GLchar *fragmentShaderSource = "#version 330 core\n"
-"out vec4 color;\n"
-"void main()\n"
-"{\n"
-"color = vec4( 1.0f, 0.5f, 0.2f, 1.0f );\n"
-"}";
+const GLint WIDTH = 800, HEIGHT = 600;
+
+
+
 
 int main()
 {
@@ -54,52 +46,15 @@ int main()
     }
     
     glViewport(0, 0, screenWidth, screenHeight);
-    GLuint vertecShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource (vertecShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertecShader);
     
-    GLchar infoLog[512];
-    GLint success;
-    
-    glGetShaderiv(vertecShader, GL_COMPILE_STATUS, &success);
-    if(! success)
-    {
-        glGetShaderInfoLog(vertecShader, 512, NULL, infoLog);
-        std::cout << "ERROR""SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-    GLuint fragmentShader = glCreateShader ( GL_FRAGMENT_SHADER);
-    glShaderSource( fragmentShader, 1, &fragmentShaderSource, NULL );
-    glCompileShader( fragmentShader);
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    
-    if(!success)
-    {
-        glGetShaderInfoLog( fragmentShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-    
-    GLuint shaderProgram = glCreateProgram();
-    glAttachShader( shaderProgram, vertecShader);
-    glAttachShader( shaderProgram, fragmentShader);
-    
-    glLinkProgram( shaderProgram);
-    
-    glGetProgramiv( shaderProgram, GL_LINK_STATUS, &success);
-    
-    if(!success)
-    {
-        glGetProgramInfoLog( shaderProgram, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-    }
-    
-    glDeleteShader( vertecShader);
-    glDeleteShader( fragmentShader);
+    Shader ourShader ( "resources/shaders/core.vs", "resources/shaders/core.frag");
     
     GLfloat vertices[] =
     {
-        -0.5f, -0.5f, 0.0f, // bottom left
-        0.5f, -0.5f, 0.0f,
-        0.0f, 0.5f, 0.0f
+        // position             //color
+        -0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,   // bottom left
+        0.5f, -0.5f, 0.0f,      0.0f, 1.0f, 0.0f,   // bottom right
+        0.0f, 0.5f, 0.0f,       0.0f, 0.0f, 1.0f    // middle top
     };
     
     GLuint VBO, VAO;
@@ -111,10 +66,11 @@ int main()
     glBindBuffer( GL_ARRAY_BUFFER, VBO);
     glBufferData( GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     
-    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), ( GLvoid *) 0);
+    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), ( GLvoid *) 0);
     glEnableVertexAttribArray(0);
     
-    glBindBuffer (GL_ARRAY_BUFFER, 0);
+    glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), ( GLvoid *) (3 * sizeof(GL_FLOAT)));
+    glEnableVertexAttribArray(1);
     
     glBindVertexArray(0);
     
@@ -126,7 +82,7 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         
-        glUseProgram(shaderProgram);
+        ourShader.Use();
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
         
